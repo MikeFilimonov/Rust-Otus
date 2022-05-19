@@ -5,19 +5,19 @@ struct _SmartOutlet {
 }
 
 impl _SmartOutlet {
-    fn _show_description(self) {
+    fn _show_description(&self) {
         todo!()
     }
 
-    fn _turn_on(self) {
+    fn _turn_on(&mut self) {
         todo!()
     }
 
-    fn _turn_off(self) {
+    fn _turn_off(&mut self) {
         todo!()
     }
 
-    fn _get_current_power_consumption(self) {
+    fn _get_current_power_consumption(&self) -> f32 {
         todo!()
     }
 }
@@ -27,7 +27,7 @@ struct _SmartThermometer {
 }
 
 impl _SmartThermometer {
-    fn _get_current_value(self) {
+    fn _get_current_value(&self) -> f32 {
         todo!()
     }
 }
