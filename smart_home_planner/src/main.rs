@@ -16,7 +16,7 @@ impl SmartHome {
         self.rooms.entry(room_name).or_insert(String::from(room_name), room::new(&room_name));   
     }
 
-    fn remove_room(&mut self, room_name: &str){
+    fn remove_room (&mut self, room_name: &str){
         
         match self.rooms.get(room_name){
             Some(value) => self.rooms.remove(&room_name),
@@ -33,7 +33,7 @@ struct Room {
 
 impl Room {
     
-    fn new(value: &str) -> Self {
+    fn new (value: &str) -> Self {
         
         Room {
             name,
@@ -41,6 +41,21 @@ impl Room {
             }
     }
 
+    fn get_device_list (&self){
+        self.smart_devices
+    }
+    
+    fn add_device (&mut self, id: &str){
+        self.smart_devices.entry(id).or_insert(String::from(id), smart_device::new(&id))       
+    }
+
+    fn remove_device (&mut self, id: &str){
+        
+        match self.smart_devices.get(id){
+            Some(value) => self.smart_devices.remove(&id),
+            None => println!("The device named {} doesn't exist", &id)
+        }
+    }
 
 }
 
@@ -59,8 +74,6 @@ impl SmartDevice {
     }
 }
 
-
-
-fn main() {
+fn main () {
     println!("Hello, world!");
 }
