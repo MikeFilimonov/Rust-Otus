@@ -29,6 +29,7 @@ impl SmartHome {
 
 }
 
+
 struct Room {
     name: String,
     smart_devices: HashMap<String, SmartDevice> 
@@ -36,11 +37,11 @@ struct Room {
 
 impl Room {
     
-    fn new (value: &str) -> Self {
+    /*fn new (value: &str) -> Self {
 
         Self.name,
         smart_devices: HashMap<&str, SmartDevice>;
-    }
+    }*/
 
     fn get_device_list (&self) -> &HashMap<String, SmartDevice> {
         &self.smart_devices
@@ -67,21 +68,26 @@ struct SmartDevice {
 }
 
 impl SmartDevice {
-    fn new(value: &str)-> Box<dyn Device>{
+    /*fn new(value: &str)-> Box<dyn Device>{
        
         /*self.name = value;
         Self*/
         Box::new(value)
 
+    }*/
+    fn new(&mut self, value: String) -> Self{
+       
+        self.name = value;
+        self
     }
 }
 
-trait Device {
+/*trait Device {
     fn new (&self, name: String) -> Self{
         Self{name}
     }
 
-}
+}*/
 
 fn main () {
     println!("Hello, world!");
