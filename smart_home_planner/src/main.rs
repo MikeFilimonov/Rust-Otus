@@ -1,5 +1,5 @@
 //clone()  - useful for converting refs into values
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 struct SmartHome {
     name: String,
@@ -14,7 +14,7 @@ impl SmartHome {
         }
     }
 
-    fn get_room_list(&self) -> &HashMap<String, Room> {
+    fn _get_room_list(&self) -> &HashMap<String, Room> {
         &self.rooms
     }
 
@@ -23,23 +23,28 @@ impl SmartHome {
     }
 
     fn remove_room(&mut self, room_name: &str) {
-        self.rooms.remove(room_name.clone());
+        //self.rooms.remove(room_name.clone());
+        //self.rooms.remove(room_name.into());
+        self.rooms.remove(room_name);
     }
 
     fn get_full_report<T: DeviceStorage>(&self, query: &T) {
         //iterate over all the rooms running through the devices located inside
         let room_list = &self.rooms;
 
+        println!("Opening the door of the {}", self.name);
+
         for (room_name, room) in room_list.iter() {
             println!("Entering {}", room_name);
 
-            let mut device_list = &room.smart_devices;
+            let device_list = &room.smart_devices;
 
             if device_list.is_empty() {
                 println!("No smart devices in the room {}", room_name);
             }
 
-            for (device_name, device) in device_list.iter() {
+            //for (_device_name, device) in device_list.iter() {
+            for device in device_list.iter() {
                 let temporary_result = query.seek(room_name, device.clone());
                 if let Some(available_device_type) = temporary_result {
                     available_device_type.show_description();
@@ -54,35 +59,35 @@ impl SmartHome {
 #[derive(Clone)]
 struct Room {
     name: String,
-    smart_devices: HashMap<String, SmartDevice>,
+     smart_devices: HashSet<SmartDevice>,
 }
 
 impl Room {
     fn new(name: &str) -> Self {
         Self {
             name: name.into(),
-            smart_devices: HashMap::new(),
+            smart_devices: HashSet::new(),
         }
     }
 
-    fn get_device_list(&self) -> Vec<String> {
+    fn _get_device_list(&self) -> Vec<&SmartDevice> {
         let devices_to_show = &self.smart_devices;
         let mut device_list = Vec::new();
 
-        for (device_name, _smart_device) in devices_to_show.iter() {
-            device_list.push(String::from(device_name));
+        for device in devices_to_show.iter() {
+            device_list.push(device);
         }
 
         device_list
     }
 
     fn add_device(&mut self, new_device: &SmartDevice) {
-        self.smart_devices
-            .insert(new_device.name.clone(), new_device.clone());
+        self.smart_devices.insert(new_device.clone());
     }
 
-    fn remove_device(&mut self, id: &str) {
-        self.smart_devices.remove(id.clone());
+    fn _remove_device(&mut self, device: &SmartDevice) {
+        // self.smart_devices.remove(device.into());
+        self.smart_devices.remove(device);
     }
 }
 
@@ -98,18 +103,18 @@ impl SmartDevice {
 }
 
 trait DeviceStorage {
-    fn seek(&self, room_name: &str, device: SmartDevice) -> Option<&dyn CanShowDescription>;
+    fn seek(&self, room_name: &str, device: SmartDevice) -> Option<&dyn ShowDescription>;
 }
 
-trait CanShowDescription {
+trait ShowDescription {
     fn show_description(&self);
 }
 
 fn main() {
     impl DeviceStorage for HashMap<(String, SmartDevice), AvailableDevicesTypes> {
-        fn seek(&self, room_name: &str, device: SmartDevice) -> Option<&dyn CanShowDescription> {
+        fn seek(&self, room_name: &str, device: SmartDevice) -> Option<&dyn ShowDescription> {
             self.get(&(room_name.into(), device))
-                .map(|device| device as &dyn CanShowDescription)
+                .map(|device| device as &dyn ShowDescription)
         }
     }
     struct SmartOutlet {
@@ -150,22 +155,22 @@ fn main() {
         SmartOutlet(SmartOutlet),
     }
 
-    impl CanShowDescription for AvailableDevicesTypes {
+    impl ShowDescription for AvailableDevicesTypes {
         fn show_description(&self) {
             match self {
-                AvailableDevicesTypes::SmartOutlet(SmartOutlet) => println!(
-                    "SmartOutlet_{} : active: {}, consumption {}",
-                    SmartOutlet.description, SmartOutlet.enabled, SmartOutlet.consumption
+                AvailableDevicesTypes::SmartOutlet(smart_outlet) => println!(
+                    "SmartOutlet_{} : active: {}, consumption:c {} W",
+                    smart_outlet.description, smart_outlet.enabled, smart_outlet.consumption
                 ),
-                AvailableDevicesTypes::SmartThermometer(SmartThermometer) => println!(
-                    "SmartThermometer: current temperature: {}",
-                    SmartThermometer.current_temperature
+                AvailableDevicesTypes::SmartThermometer(smart_thermometer) => println!(
+                    "SmartThermometer: current temperature:  C{}",
+                    smart_thermometer.current_temperature
                 ),
             }
         }
     }
 
-    let mut home = SmartHome::new("Brand new home");
+    let mut home = SmartHome::new("Brand new smart home");
 
     let white_smart_outlet = SmartOutlet {
         description: String::from("Schneider"),
@@ -183,7 +188,8 @@ fn main() {
 
     let mut living_room = Room::new("Living room");
     let mut kitchen = Room::new("Kitchen");
-    let mut hall = Room::new("Hall");
+    let hall = Room::new("Hall");
+    let bathroom = Room::new("Bathroom");
 
     let mut device_types_available: HashMap<(String, SmartDevice), AvailableDevicesTypes> =
         HashMap::new();
@@ -201,6 +207,11 @@ fn main() {
     home.add_room(&living_room);
     home.add_room(&kitchen);
     home.add_room(&hall);
+    home.add_room(&bathroom);
+
+    //changed mind to adding a bath - that's datcha
+    home.remove_room(&bathroom.name);
+
 
     //synthetic relation between rooms and devices for full_device_report method
     device_types_available.insert(
