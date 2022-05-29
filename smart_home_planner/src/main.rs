@@ -159,11 +159,11 @@ fn main() {
         fn show_description(&self) {
             match self {
                 AvailableDevicesTypes::SmartOutlet(smart_outlet) => println!(
-                    "SmartOutlet_{} : active: {}, consumption:c {} W",
+                    "SmartOutlet_{} : active: {}, consumption: {} W",
                     smart_outlet.description, smart_outlet.enabled, smart_outlet.consumption
                 ),
                 AvailableDevicesTypes::SmartThermometer(smart_thermometer) => println!(
-                    "SmartThermometer: current temperature:  C{}",
+                    "SmartThermometer: current temperature: {} C",
                     smart_thermometer.current_temperature
                 ),
             }
