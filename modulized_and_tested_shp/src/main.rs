@@ -19,28 +19,11 @@ impl DeviceStorage for HashMap<(String, SmartDevice), AvailableDeviceTypes> {
 }
 
 
+
 fn main() {
 
 
-    pub enum AvailableDeviceTypes {
-        SmartThermometer(SmartThermometer),
-        SmartOutlet(SmartOutlet),
-    }
     
-    impl ShowDescription for AvailableDeviceTypes {
-        fn show_description(&self) {
-            match self {
-                AvailableDeviceTypes::SmartOutlet(smart_outlet) => println!(
-                    "SmartOutlet_{} : active: {}, consumption: {} W",
-                    smart_outlet.description, smart_outlet.enabled, smart_outlet.consumption
-                ),
-                AvailableDeviceTypes::SmartThermometer(smart_thermometer) => println!(
-                    "SmartThermometer: current temperature: {} C",
-                    smart_thermometer.current_temperature
-                ),
-            }
-        }
-    }
     struct SmartOutlet {
         description: String,
         enabled: bool,
