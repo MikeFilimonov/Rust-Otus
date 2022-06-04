@@ -5,6 +5,13 @@ pub struct SmartHome {
     rooms: HashMap<String, Room>,
 }
 
+pub trait ShowDescription {
+    fn show_description(&self);
+}
+pub trait DeviceStorage {
+    fn seek(&self, room_name: &str, device: SmartDevice) -> Option<&dyn ShowDescription>;
+}
+
 impl SmartHome {
 
 pub  fn new(name: &str) -> Self {
@@ -26,7 +33,7 @@ pub fn remove_room(&mut self, room_name: &str) {
         self.rooms.remove(room_name);
     }
 
-pub    fn get_full_report<T: DeviceStorage>(&self, query: &T) {
+pub fn get_full_report<T: DeviceStorage>(&self, query: &T) {
         //iterate over all the rooms running through the devices located inside
         let room_list = &self.rooms;
 
@@ -55,17 +62,21 @@ pub    fn get_full_report<T: DeviceStorage>(&self, query: &T) {
 
 #[derive(Clone)]
 pub struct Room {
-    pub   name: String,
+    name: String,
     smart_devices: HashSet<SmartDevice>,
 }
 
 impl Room {
-pub   fn new(name: &str) -> Self {
+pub  fn new(name: &str) -> Self {
         Self {
             name: name.into(),
             smart_devices: HashSet::new(),
         }
     }
+
+pub fn get_room_name(&self) -> String {
+    String::from(&self.name)
+}
 
 pub   fn _get_device_list(&self) -> Vec<&SmartDevice> {
         let devices_to_show = &self.smart_devices;

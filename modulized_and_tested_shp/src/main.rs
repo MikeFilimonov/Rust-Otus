@@ -1,29 +1,26 @@
 //clone()  - useful for converting refs into values
 use std::collections::HashMap;
-use smart_home_planner::{SmartDevice, SmartHome, Room};
-
-
-trait DeviceStorage {
-    fn seek(&self, room_name: &str, device: SmartDevice) -> Option<&dyn ShowDescription>;
-}
-
-trait ShowDescription {
-    fn show_description(&self);
-}
-
-impl DeviceStorage for HashMap<(String, SmartDevice), AvailableDeviceTypes> {
-    fn seek(&self, room_name: &str, device: SmartDevice) -> Option<&dyn ShowDescription> {
-        self.get(&(room_name.into(), device))
-            .map(|device| device as &dyn ShowDescription)
-    }
-}
+use smart_home_planner::{SmartDevice, SmartHome, Room, DeviceStorage, ShowDescription};
 
 
 
 fn main() {
-
-
+   
+    enum AvailableDeviceTypes {
+        SmartThermometer(SmartThermometer),
+        SmartOutlet(SmartOutlet),
+    }
     
+    struct LocalStorage(HashMap<(String, SmartDevice), AvailableDeviceTypes>);
+    
+    //impl DeviceStorage for HashMap<(String, SmartDevice), AvailableDeviceTypes> {
+    impl DeviceStorage for LocalStorage {
+        fn seek(&self, room_name: &str, device: SmartDevice) -> Option<&dyn ShowDescription> {
+            self.0.get(&(room_name.into(), device))
+                .map(|device| device as &dyn ShowDescription)
+        }
+    }
+
     struct SmartOutlet {
         description: String,
         enabled: bool,
@@ -79,11 +76,22 @@ fn main() {
     let hall = Room::new("Hall");
     let bathroom = Room::new("Bathroom");
 
-    let mut device_types_available: HashMap<(String, SmartDevice), AvailableDeviceTypes> =
-        HashMap::new();
+    // let mut device_types_available: HashMap<(String, SmartDevice), AvailableDeviceTypes> =
+    //     HashMap::new();
+    // let smart_outlet_from_living_room = ("Living room".into(), SmartDevice::new("White outlet"));
+    // let smart_thermo_from_living_room =
+    //     ("Living room".into(), SmartDevice::new("Omron thermometer"));   
+    // let smart_outlet_from_kitchen = ("Kitchen".into(), SmartDevice::new("Black outlet"));
+
+    // living_room.add_device(&smart_outlet_from_living_room.1);
+    // living_room.add_device(&smart_thermo_from_living_room.1);
+
+    // kitchen.add_device(&smart_outlet_from_kitchen.1);   
+    
+    let mut device_types_available: LocalStorage = LocalStorage(HashMap::new());
     let smart_outlet_from_living_room = ("Living room".into(), SmartDevice::new("White outlet"));
     let smart_thermo_from_living_room =
-        ("Living room".into(), SmartDevice::new("Omron thermometer"));
+       ("Living room".into(), SmartDevice::new("Omron thermometer"));
 
     let smart_outlet_from_kitchen = ("Kitchen".into(), SmartDevice::new("Black outlet"));
 
@@ -97,20 +105,21 @@ fn main() {
     home.add_room(&hall);
     home.add_room(&bathroom);
 
+    let room_name = &bathroom.get_room_name();
     //changed mind to adding a bath - that's datcha
-    home.remove_room(&bathroom.name);
+    home.remove_room(room_name);
 
 
     //synthetic relation between rooms and devices for full_device_report method
-    device_types_available.insert(
+    device_types_available.0.insert(
         smart_outlet_from_living_room,
         AvailableDeviceTypes::SmartOutlet(white_smart_outlet),
     );
-    device_types_available.insert(
+    device_types_available.0.insert(
         smart_thermo_from_living_room,
         AvailableDeviceTypes::SmartThermometer(smart_thermometer),
     );
-    device_types_available.insert(
+    device_types_available.0.insert(
         smart_outlet_from_kitchen,
         AvailableDeviceTypes::SmartOutlet(black_smart_outlet),
     );

@@ -1,0 +1,14 @@
+ввести обертку над типом в текущем main.rs
+
+Обертка делается таким вот синтаксисом:
+struct MyStorage(HashMap<(String, SmartDevice), AvailableDeviceTypes>);
+
+https://rust-unofficial.github.io/patterns/patterns/behavioural/newtype.html
+Затем реализfция трейта для локальной созданной обертки уже не вызывает ошибок:
+impl DeviceStorage for MyStorage
+
+
+https://stackoverflow.com/a/25415289
+https://blog.mgattozzi.dev/orphan-rules/
+https://internals.rust-lang.org/t/revisit-orphan-rules/7795
+
