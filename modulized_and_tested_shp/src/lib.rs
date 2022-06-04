@@ -13,27 +13,26 @@ pub trait DeviceStorage {
 }
 
 impl SmartHome {
-
-pub  fn new(name: &str) -> Self {
+    pub fn new(name: &str) -> Self {
         Self {
             name: String::from(name),
             rooms: HashMap::new(),
         }
     }
 
-pub fn _get_room_list(&self) -> &HashMap<String, Room> {
+    pub fn _get_room_list(&self) -> &HashMap<String, Room> {
         &self.rooms
     }
 
-pub fn add_room(&mut self, new_room: &Room) {
+    pub fn add_room(&mut self, new_room: &Room) {
         self.rooms.insert(new_room.name.clone(), new_room.clone());
     }
 
-pub fn remove_room(&mut self, room_name: &str) {
+    pub fn remove_room(&mut self, room_name: &str) {
         self.rooms.remove(room_name);
     }
 
-pub fn get_full_report<T: DeviceStorage>(&self, query: &T) {
+    pub fn get_full_report<T: DeviceStorage>(&self, query: &T) {
         //iterate over all the rooms running through the devices located inside
         let room_list = &self.rooms;
 
@@ -48,7 +47,7 @@ pub fn get_full_report<T: DeviceStorage>(&self, query: &T) {
                 println!("No smart devices in the room {}", room_name);
             }
 
-                for device in device_list.iter() {
+            for device in device_list.iter() {
                 let temporary_result = query.seek(room_name, device.clone());
                 if let Some(available_device_type) = temporary_result {
                     available_device_type.show_description();
@@ -67,18 +66,18 @@ pub struct Room {
 }
 
 impl Room {
-pub  fn new(name: &str) -> Self {
+    pub fn new(name: &str) -> Self {
         Self {
             name: name.into(),
             smart_devices: HashSet::new(),
         }
     }
 
-pub fn get_room_name(&self) -> String {
-    String::from(&self.name)
-}
+    pub fn get_room_name(&self) -> String {
+        String::from(&self.name)
+    }
 
-pub   fn _get_device_list(&self) -> Vec<&SmartDevice> {
+    pub fn _get_device_list(&self) -> Vec<&SmartDevice> {
         let devices_to_show = &self.smart_devices;
         let mut device_list = Vec::new();
 
@@ -89,11 +88,11 @@ pub   fn _get_device_list(&self) -> Vec<&SmartDevice> {
         device_list
     }
 
-pub   fn add_device(&mut self, new_device: &SmartDevice) {
+    pub fn add_device(&mut self, new_device: &SmartDevice) {
         self.smart_devices.insert(new_device.clone());
     }
 
-pub   fn _remove_device(&mut self, device: &SmartDevice) {
+    pub fn _remove_device(&mut self, device: &SmartDevice) {
         // self.smart_devices.remove(device.into());
         self.smart_devices.remove(device);
     }
@@ -105,8 +104,7 @@ pub struct SmartDevice {
 }
 
 impl SmartDevice {
-    pub  fn new(name: &str) -> Self {
+    pub fn new(name: &str) -> Self {
         Self { name: name.into() }
     }
 }
-

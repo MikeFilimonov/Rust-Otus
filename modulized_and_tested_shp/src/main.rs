@@ -1,23 +1,37 @@
 //clone()  - useful for converting refs into values
+use smart_home_planner::{DeviceStorage, Room, ShowDescription, SmartDevice, SmartHome};
 use std::collections::HashMap;
-use smart_home_planner::{SmartDevice, SmartHome, Room, DeviceStorage, ShowDescription};
-
-
 
 fn main() {
-   
     enum AvailableDeviceTypes {
         SmartThermometer(SmartThermometer),
         SmartOutlet(SmartOutlet),
     }
-    
+
     struct LocalStorage(HashMap<(String, SmartDevice), AvailableDeviceTypes>);
-    
+
     //impl DeviceStorage for HashMap<(String, SmartDevice), AvailableDeviceTypes> {
     impl DeviceStorage for LocalStorage {
         fn seek(&self, room_name: &str, device: SmartDevice) -> Option<&dyn ShowDescription> {
-            self.0.get(&(room_name.into(), device))
+            self.0
+                .get(&(room_name.into(), device))
                 .map(|device| device as &dyn ShowDescription)
+            // .map(|device| device as &dyn ShowDescription)
+        }
+    }
+
+    impl ShowDescription for AvailableDeviceTypes {
+        fn show_description(&self) {
+            match self {
+                AvailableDeviceTypes::SmartOutlet(smart_outlet) => println!(
+                    "SmartOutlet_{} : active: {}, consumption: {} W",
+                    smart_outlet.description, smart_outlet.enabled, smart_outlet.consumption
+                ),
+                AvailableDeviceTypes::SmartThermometer(smart_thermometer) => println!(
+                    "SmartThermometer: current temperature: {} C",
+                    smart_thermometer.current_temperature
+                ),
+            }
         }
     }
 
@@ -44,7 +58,7 @@ fn main() {
             todo!()
         }
     }
-    
+
     struct SmartThermometer {
         current_temperature: f32,
     }
@@ -80,18 +94,18 @@ fn main() {
     //     HashMap::new();
     // let smart_outlet_from_living_room = ("Living room".into(), SmartDevice::new("White outlet"));
     // let smart_thermo_from_living_room =
-    //     ("Living room".into(), SmartDevice::new("Omron thermometer"));   
+    //     ("Living room".into(), SmartDevice::new("Omron thermometer"));
     // let smart_outlet_from_kitchen = ("Kitchen".into(), SmartDevice::new("Black outlet"));
 
     // living_room.add_device(&smart_outlet_from_living_room.1);
     // living_room.add_device(&smart_thermo_from_living_room.1);
 
-    // kitchen.add_device(&smart_outlet_from_kitchen.1);   
-    
+    // kitchen.add_device(&smart_outlet_from_kitchen.1);
+
     let mut device_types_available: LocalStorage = LocalStorage(HashMap::new());
     let smart_outlet_from_living_room = ("Living room".into(), SmartDevice::new("White outlet"));
     let smart_thermo_from_living_room =
-       ("Living room".into(), SmartDevice::new("Omron thermometer"));
+        ("Living room".into(), SmartDevice::new("Omron thermometer"));
 
     let smart_outlet_from_kitchen = ("Kitchen".into(), SmartDevice::new("Black outlet"));
 
@@ -108,7 +122,6 @@ fn main() {
     let room_name = &bathroom.get_room_name();
     //changed mind to adding a bath - that's datcha
     home.remove_room(room_name);
-
 
     //synthetic relation between rooms and devices for full_device_report method
     device_types_available.0.insert(
