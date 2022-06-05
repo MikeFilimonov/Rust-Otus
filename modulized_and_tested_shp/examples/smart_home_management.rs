@@ -1,5 +1,4 @@
-//clone()  - useful for converting refs into values
-use smart_home_planner::{DeviceStorage, Room, ShowDescription, SmartDevice, SmartHome};
+use smart_home_planner::*;
 use std::collections::HashMap;
 
 fn main() {
@@ -125,6 +124,3 @@ fn main() {
 
     home.get_full_report(&device_types_available);
 }
-
-#[cfg(test)]
-mod tests {}

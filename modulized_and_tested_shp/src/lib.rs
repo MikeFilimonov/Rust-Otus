@@ -97,7 +97,7 @@ impl Room {
     }
 }
 
-#[derive(Clone, Eq, Hash, PartialEq,  Debug)]
+#[derive(Clone, Eq, Hash, PartialEq, Debug)]
 pub struct SmartDevice {
     name: String,
 }
@@ -109,54 +109,76 @@ impl SmartDevice {
 }
 
 #[cfg(test)]
-mod tests{
+mod tests {
 
     use super::*;
 
     #[test]
-    fn smart_home_supports_adding_rooms(){
-
+    fn smart_home_supports_adding_rooms() {
         let mut depot = SmartHome::new("Storage facilities");
         let new_room_name = String::from("warehouse");
         let main_space = Room::new(&new_room_name);
         depot.add_room(&main_space);
         let current_room_list = depot._get_room_list();
-       
+
         assert_eq!(&current_room_list.get(&new_room_name), &Some(&main_space));
 
         let absent_room_name = String::from("cabinet");
         assert_eq!(&current_room_list.get(&absent_room_name), &None);
     }
-    
-    #[test]
-    fn smart_home_supports_removing_rooms(){
 
+    #[test]
+    fn smart_home_supports_removing_rooms() {
         let mut depot = SmartHome::new("Storage facilities");
-        
+
         let warehouse_name = String::from("warehouse");
-        let guards_room_name= String::from("security post");
-        
+        let guards_room_name = String::from("security post");
+
         let warehouse = Room::new(&warehouse_name);
         let security_post = Room::new(&guards_room_name);
         depot.add_room(&warehouse);
         depot.add_room(&security_post);
-        
+
         depot.remove_room(&warehouse_name);
-        
+
         let current_room_list = depot._get_room_list();
-     
+
         assert_eq!(&current_room_list.get(&warehouse_name), &None);
         assert_ne!(&current_room_list.get(&warehouse_name), &Some(&warehouse));
 
         let absent_room_name = String::from("cabinet");
         assert_eq!(&current_room_list.get(&absent_room_name), &None);
 
-        assert_eq!(&current_room_list.get(&guards_room_name), &Some(&security_post));
+        assert_eq!(
+            &current_room_list.get(&guards_room_name),
+            &Some(&security_post)
+        );
     }
 
     #[test]
-    fn room_can_return_device_list(){
+    fn room_can_return_device_list() -> Result<(), String> {
+        let smart_socket = SmartDevice::new("smart socket");
+        let smart_bin = SmartDevice::new("smart trashbin");
+        let smart_frige = SmartDevice::new("Samsung");
 
+        let mut kitchen = Room::new("kitchen");
+        kitchen.add_device(&smart_socket);
+        kitchen.add_device(&smart_bin);
+        kitchen.add_device(&smart_frige);
+
+        let devices_in_the_room = kitchen._get_device_list();
+
+        let it_works = devices_in_the_room.len() > 0
+            && devices_in_the_room.contains(&&smart_socket)
+            && devices_in_the_room.contains(&&smart_bin)
+            && devices_in_the_room.contains(&&smart_frige);
+
+        if it_works {
+            Ok(())
+        } else {
+            Err(String::from(
+                "Sorry, the room can't return the device list properly",
+            ))
+        }
     }
-
 }
