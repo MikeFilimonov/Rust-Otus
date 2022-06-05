@@ -59,7 +59,7 @@ impl SmartHome {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Room {
     name: String,
     smart_devices: HashSet<SmartDevice>,
@@ -93,12 +93,11 @@ impl Room {
     }
 
     pub fn _remove_device(&mut self, device: &SmartDevice) {
-        // self.smart_devices.remove(device.into());
         self.smart_devices.remove(device);
     }
 }
 
-#[derive(Clone, Eq, Hash, PartialEq)]
+#[derive(Clone, Eq, Hash, PartialEq,  Debug)]
 pub struct SmartDevice {
     name: String,
 }
@@ -107,4 +106,57 @@ impl SmartDevice {
     pub fn new(name: &str) -> Self {
         Self { name: name.into() }
     }
+}
+
+#[cfg(test)]
+mod tests{
+
+    use super::*;
+
+    #[test]
+    fn smart_home_supports_adding_rooms(){
+
+        let mut depot = SmartHome::new("Storage facilities");
+        let new_room_name = String::from("warehouse");
+        let main_space = Room::new(&new_room_name);
+        depot.add_room(&main_space);
+        let current_room_list = depot._get_room_list();
+       
+        assert_eq!(&current_room_list.get(&new_room_name), &Some(&main_space));
+
+        let absent_room_name = String::from("cabinet");
+        assert_eq!(&current_room_list.get(&absent_room_name), &None);
+    }
+    
+    #[test]
+    fn smart_home_supports_removing_rooms(){
+
+        let mut depot = SmartHome::new("Storage facilities");
+        
+        let warehouse_name = String::from("warehouse");
+        let guards_room_name= String::from("security post");
+        
+        let warehouse = Room::new(&warehouse_name);
+        let security_post = Room::new(&guards_room_name);
+        depot.add_room(&warehouse);
+        depot.add_room(&security_post);
+        
+        depot.remove_room(&warehouse_name);
+        
+        let current_room_list = depot._get_room_list();
+     
+        assert_eq!(&current_room_list.get(&warehouse_name), &None);
+        assert_ne!(&current_room_list.get(&warehouse_name), &Some(&warehouse));
+
+        let absent_room_name = String::from("cabinet");
+        assert_eq!(&current_room_list.get(&absent_room_name), &None);
+
+        assert_eq!(&current_room_list.get(&guards_room_name), &Some(&security_post));
+    }
+
+    #[test]
+    fn room_can_return_device_list(){
+
+    }
+
 }

@@ -3,15 +3,15 @@ use smart_home_planner::{DeviceStorage, Room, ShowDescription, SmartDevice, Smar
 use std::collections::HashMap;
 
 fn main() {
+    
+   struct LocalStorage(HashMap<(String, SmartDevice), AvailableDeviceTypes>);
+
     enum AvailableDeviceTypes {
         SmartThermometer(SmartThermometer),
         SmartOutlet(SmartOutlet),
     }
 
-    struct LocalStorage(HashMap<(String, SmartDevice), AvailableDeviceTypes>);
-
-    //impl DeviceStorage for HashMap<(String, SmartDevice), AvailableDeviceTypes> {
-    impl DeviceStorage for LocalStorage {
+   impl DeviceStorage for LocalStorage {
         fn seek(&self, room_name: &str, device: SmartDevice) -> Option<&dyn ShowDescription> {
             self.0
                 .get(&(room_name.into(), device))
@@ -90,18 +90,6 @@ fn main() {
     let hall = Room::new("Hall");
     let bathroom = Room::new("Bathroom");
 
-    // let mut device_types_available: HashMap<(String, SmartDevice), AvailableDeviceTypes> =
-    //     HashMap::new();
-    // let smart_outlet_from_living_room = ("Living room".into(), SmartDevice::new("White outlet"));
-    // let smart_thermo_from_living_room =
-    //     ("Living room".into(), SmartDevice::new("Omron thermometer"));
-    // let smart_outlet_from_kitchen = ("Kitchen".into(), SmartDevice::new("Black outlet"));
-
-    // living_room.add_device(&smart_outlet_from_living_room.1);
-    // living_room.add_device(&smart_thermo_from_living_room.1);
-
-    // kitchen.add_device(&smart_outlet_from_kitchen.1);
-
     let mut device_types_available: LocalStorage = LocalStorage(HashMap::new());
     let smart_outlet_from_living_room = ("Living room".into(), SmartDevice::new("White outlet"));
     let smart_thermo_from_living_room =
@@ -138,4 +126,10 @@ fn main() {
     );
 
     home.get_full_report(&device_types_available);
+
+}
+
+#[cfg(test)]
+mod tests{
+    
 }
