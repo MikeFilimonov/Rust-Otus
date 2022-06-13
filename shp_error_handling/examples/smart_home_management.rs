@@ -94,10 +94,15 @@ fn main() {
 
     let smart_outlet_from_kitchen = ("Kitchen".into(), SmartDevice::new("Black outlet"));
 
-    living_room.add_device(&smart_outlet_from_living_room.1);
-    living_room.add_device(&smart_thermo_from_living_room.1);
-
-    kitchen.add_device(&smart_outlet_from_kitchen.1);
+    living_room
+        .add_device(&smart_outlet_from_living_room.1)
+        .unwrap_or_else(|err| println!("{:?}", err));
+    living_room
+        .add_device(&smart_thermo_from_living_room.1)
+        .unwrap_or_else(|err| println!("{:?}", err));
+    kitchen
+        .add_device(&smart_outlet_from_kitchen.1)
+        .unwrap_or_else(|err| println!("{:?}", err));
 
     home.add_room(&living_room);
     home.add_room(&kitchen);
@@ -106,7 +111,7 @@ fn main() {
 
     let room_name = &bathroom.get_room_name();
     //changed mind to adding a bath - that's datcha
-    home.remove_room(room_name);
+    home.remove_room(Some(room_name));
 
     //synthetic relation between rooms and devices for full_device_report method
     device_types_available.0.insert(

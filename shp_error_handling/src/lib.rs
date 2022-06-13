@@ -1,4 +1,5 @@
 use std::collections::{HashMap, HashSet};
+use std::io::ErrorKind as ErrorTypes;
 
 pub struct SmartHome {
     name: String,
@@ -28,8 +29,16 @@ impl SmartHome {
         self.rooms.insert(new_room.name.clone(), new_room.clone());
     }
 
-    pub fn remove_room(&mut self, room_name: &str) {
-        self.rooms.remove(room_name);
+    pub fn remove_room(&mut self, room_name: Option<&str>) {
+        match room_name {
+            None => {
+                println!("Please, define the room name and try again...");
+            }
+            Some(room_name) => {
+                let room_to_be_removed = room_name;
+                self.rooms.remove(room_to_be_removed);
+            }
+        };
     }
 
     pub fn get_full_report<T: DeviceStorage>(&self, query: &T) {
@@ -88,12 +97,21 @@ impl Room {
         device_list
     }
 
-    pub fn add_device(&mut self, new_device: &SmartDevice) {
-        self.smart_devices.insert(new_device.clone());
+    pub fn add_device(&mut self, new_device: &SmartDevice) -> Result<(), ErrorTypes> {
+        let successfully_added = self.smart_devices.insert(new_device.clone());
+
+        match successfully_added {
+            true => Ok(()),
+            _ => Err(ErrorTypes::AlreadyExists),
+        }
     }
 
-    pub fn _remove_device(&mut self, device: &SmartDevice) {
-        self.smart_devices.remove(device);
+    pub fn _remove_device(&mut self, device: &SmartDevice) -> Result<(), ErrorTypes> {
+        let removed = self.smart_devices.remove(device);
+        match removed {
+            true => Ok(()),
+            _ => Err(ErrorTypes::NotFound),
+        }
     }
 }
 
@@ -139,7 +157,7 @@ mod tests {
         depot.add_room(&warehouse);
         depot.add_room(&security_post);
 
-        depot.remove_room(&warehouse_name);
+        depot.remove_room(Some(&warehouse_name));
 
         let current_room_list = depot._get_room_list();
 
@@ -162,9 +180,15 @@ mod tests {
         let smart_frige = SmartDevice::new("Samsung");
 
         let mut kitchen = Room::new("kitchen");
-        kitchen.add_device(&smart_socket);
-        kitchen.add_device(&smart_bin);
-        kitchen.add_device(&smart_frige);
+        kitchen
+            .add_device(&smart_socket)
+            .unwrap_or_else(|err| println!("{:?}", err));
+        kitchen
+            .add_device(&smart_bin)
+            .unwrap_or_else(|err| println!("{:?}", err));
+        kitchen
+            .add_device(&smart_frige)
+            .unwrap_or_else(|err| println!("{:?}", err));
 
         let devices_in_the_room = kitchen._get_device_list();
 
