@@ -8,4 +8,3 @@ edition = "2021"
 
 [dependencies]
 planning_tools = {path = "../planning_tools"}
-tcp_dt = {path = "../tcp_dt"}

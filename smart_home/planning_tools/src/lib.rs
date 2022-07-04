@@ -1,6 +1,10 @@
 use std::collections::{HashMap, HashSet};
 use std::io::ErrorKind as ErrorTypes;
 
+mod devices;
+
+pub use devices::{SmartOutlet, SmartThermometer};
+
 pub struct SmartHome {
     name: String,
     rooms: HashMap<String, Room>,
