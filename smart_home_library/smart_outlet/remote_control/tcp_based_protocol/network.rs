@@ -4,7 +4,7 @@ use std::net::SocketAddr;
 
 use crate::wrappers::SHTCPError;
 
-pub mod constants {
+pub mod consts {
 
     pub const DEFAULT_TCP_SERVER_ADDR: &str = "127.0.0.1:7878";
     pub const DEFAULT_TCP_CLIENT_ADDR: &str = "127.0.0.1:1489";
@@ -62,3 +62,4 @@ pub enum SocketServerResponse {
     Undefined
 
 }
+
