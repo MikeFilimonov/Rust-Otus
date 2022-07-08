@@ -14,7 +14,7 @@ pub trait Message{
 }
 
 
-pub (crate) fn send_message <M: Message + Serialize, W:Write>(message: M, &mut writer: W) -> Result<(), SHTCPError>{
+pub (crate) fn send_message <M: Message + Serialize, W:Write>(message: M, mut writer: W) -> Result<(), SHTCPError>{
 
     let bytes = M::type.to_be_bytes();
     writer.write_all(&bytes)?;
@@ -28,3 +28,6 @@ pub (crate) fn send_message <M: Message + Serialize, W:Write>(message: M, &mut w
     Ok(())
 
 }
+
+pub (crate) fn get_message <M:Message + Serialize, R:Read> ()
+

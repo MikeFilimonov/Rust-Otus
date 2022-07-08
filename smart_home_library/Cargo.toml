@@ -3,8 +3,5 @@
 members = [
 "planner",
 "planning_tools",
-"shtcp",
-"shtcp_client",
-"shtcp_emulator"
-]
+"remote_control"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

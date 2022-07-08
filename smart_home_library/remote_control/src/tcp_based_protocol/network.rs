@@ -2,7 +2,7 @@ use std::io::{Read, Write};
 use std::mem::size_of;
 use std::net::SocketAddr;
 
-use crate::wrappers::SHTCPError;
+use crate::tcp_based_protocol::wrappers::SHTCPError;
 
 pub mod consts {
 
@@ -35,23 +35,23 @@ impl From<u8> for Command{
 
 }
 
-impl From<Command> for Command {
+// impl From<Command> for Command {
 
-    fn from(val: Command){-> u8{
+//     fn from(val: Command){-> u8{
 
-        match val {
+//         match val {
 
-            ChangeState => 0,
-            GetState => 1,
-            GetConsumption => 2,
-            Undefined => 255,
+//             ChangeState => 0,
+//             GetState => 1,
+//             GetConsumption => 2,
+//             Undefined => 255,
 
-        }
+//         }
 
-    }
+//     }
         
-    }
-}
+//     }
+// }
 
 
 pub enum SocketServerResponse {
