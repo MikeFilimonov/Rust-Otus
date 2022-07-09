@@ -29,7 +29,5 @@ pub enum SHTCPError {
     WrongMessageType(u16),
 }
 
-
-
 pub type RequestResult = Result<(), SHTCPError>;
 pub type ResponseResult<T> = Result<T, SHTCPError>;

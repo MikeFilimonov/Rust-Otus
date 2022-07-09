@@ -1,13 +1,12 @@
-//https://en.wikipedia.org/wiki/Type%E2%80%93length%E2%80%93value
+// implemented basic TLV - protocol, for more info check https://en.wikipedia.org/wiki/Type%E2%80%93length%E2%80%93value
 
 use std::io::{Read, Write};
 use bincode::{self, Options};
 use serde::{de, Deserialize, Serialize};
+use tcp_based_protocol_types::*;
 
-pub mod wrappers;
-pub mod network;
-// pub use wrappers::*;
-use wrappers::*;
+pub mod tcp_based_protocol_types;
+pub mod network_consts;
 
 pub trait Message{
     const MESSAGE_TYPE:u16;
@@ -30,7 +29,7 @@ pub (crate) fn send_message <M: Message + Serialize, W:Write>(message: M, mut wr
 
 }
 
-pub (crate) fn receive_message<Response: Message + de::DeserializeOwned, R:Read>(mut reader: R) 
+pub (crate) fn receive_message <Response: Message + de::DeserializeOwned, R:Read>(mut reader: R) 
     -> Result< Box<Response>, SHTCPError> {
 
         let mut buffer = [0u8, 2];
