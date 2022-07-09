@@ -8,6 +8,10 @@ pub mod consts {
 
     pub const DEFAULT_TCP_SERVER_ADDR: &str = "127.0.0.1:7878";
     pub const DEFAULT_TCP_CLIENT_ADDR: &str = "127.0.0.1:1489";
+
+    pub const RQST_ID: u16 = 0x1;
+    pub const RSPNS_ID: u16 = 0xF;
+    pub const TEXT_MSG_ID: u16 = 0xABCD;
 }
 
 pub enum Command{

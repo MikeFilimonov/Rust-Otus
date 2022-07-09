@@ -23,23 +23,13 @@ pub enum SHTCPError {
     BadSocketAddress,
 
     #[error ("Binary error {0}")]
-    Bin(#[from] bincode::Error)
+    Bin(#[from] bincode::Error),
 
-    // #[error ("Print usage and exit")]
-    // PrintUsageAndExit,
     #[error ("Wrong message type {0}")]
     WrongMessageType(u16),
 }
 
-// #[derive (Debug, Error)]
-// pub enum RequestError {
 
-//     #[error("IO error: {0}")]
-//     Io(#[from] io::Error),
-
-//     #[error("binary error {0}")]
-//     Bin(#[from] bincode::Error),
-// }
 
 pub type RequestResult = Result<(), SHTCPError>;
 pub type ResponseResult<T> = Result<T, SHTCPError>;
