@@ -1,5 +1,5 @@
 [package]
-name = "remote_control"
+name = "features"
 version = "0.1.0"
 edition = "2021"
 
@@ -10,3 +10,4 @@ bincode = "1"
 rand = "0.8"
 serde = {version = "1", features = ["derive"]}
 thiserror = "1.0.31"
+uuid = {version = "1", features = ["v4", "fast-rng", "serde"]}

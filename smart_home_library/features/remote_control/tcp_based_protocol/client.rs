@@ -27,7 +27,7 @@ impl TCPClient{
         stream.read_exact(&mut bytes);
 
         if bytes != data{
-            return Err(SHTCPError::HandshakeFailed(()));
+            return Err(SHTCPError::HandshakeFailed);
         }
 
         Ok(Self{stream})
@@ -42,19 +42,12 @@ impl TCPClient{
 
         }
 
-    // pub fn send_request <R: Message + Serialize, S: Message + de::DeserializeOwned> 
-    //     (&mut self, request: R)
-    // -> Result <Box(S), SHTCPError>{
-pub fn send_request <R, S> (&mut self, request: R)
-    -> Result <Box(S), SHTCPError>
-    where 
-    R: Message + Serialize,
-    S: Message + de:DeserializeOwned,
-    {
+pub fn send_request <R: Message + Serialize, S: Message + de::DeserializeOwned> (&mut self, request: R)
+    -> Result <Box<S>, SHTCPError>{
+        
         send_message(request, &mut self.stream)?;
-        let response = receive_message(self.stream)?;
+        let response = receive_message(&mut self.stream)?;
         Ok(response)
-
 
     }
 

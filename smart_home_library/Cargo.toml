@@ -3,5 +3,5 @@
 members = [
 "planner",
 "planning_tools",
-"remote_control"]
+"features"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

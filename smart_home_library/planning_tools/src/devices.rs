@@ -1,11 +1,16 @@
+use uuid::Uuid;
+
 pub struct SmartOutlet {
+    
     pub description: String,
     pub enabled: bool,
     pub consumption: f32,
+  
 }
 
 impl SmartOutlet {
-    fn _show_description(&self) {
+    
+   fn _show_description(&self) {
         todo!()
     }
 
@@ -22,12 +27,32 @@ impl SmartOutlet {
     }
 }
 
+
 pub struct SmartThermometer {
+    
     pub current_temperature: f32,
+ 
 }
 
 impl SmartThermometer {
+    
     fn _get_current_value(&self) -> f32 {
         todo!()
     }
+ 
+}
+
+pub struct RemoteControlledOutlet{
+
+    device: SmartOutlet,
+    
+    id: Uuid
+
+}
+
+impl RemoteControlledOutlet{
+
+    fn get_id(&self) -> Uuid;
+
+
 }

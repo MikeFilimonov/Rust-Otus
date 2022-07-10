@@ -7,6 +7,8 @@ use tcp_based_protocol_types::*;
 
 pub mod tcp_based_protocol_types;
 pub mod network_consts;
+pub mod client;
+pub mod server;
 
 pub trait Message{
     const MESSAGE_TYPE:u16;
