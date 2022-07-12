@@ -1,5 +1,5 @@
 use io_via_tcp::{
-    consts::{self, DEFAULT_OUTLET_ADDRESS},
+    consts::{DEFAULT_OUTLET_ADDRESS},
     Command, SmartOutletClient,
 };
 use std::io;
@@ -21,8 +21,8 @@ fn main() {
             }
         };
 
-        println!("Response: {}", response);
-        // print!(format!("Response:{response}", response));
+        println!("Response: {:?}", response);
+       
 
     }
 }

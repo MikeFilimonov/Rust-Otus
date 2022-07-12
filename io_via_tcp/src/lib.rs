@@ -42,7 +42,7 @@ impl From<Command> for u8 {
     }
 }
 
-//  #[derive (Format)]
+#[derive(Debug)]
 pub enum ServerResponse {
     State(u32),
     Wattage(f32),
@@ -61,7 +61,6 @@ pub enum ServerResponse {
 //         }
 //     }
 // }
-
 
 impl From<[u8; 5]> for ServerResponse {
     fn from(incoming_data: [u8; 5]) -> Self {
