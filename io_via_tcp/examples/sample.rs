@@ -21,7 +21,7 @@ fn main() {
             }
         };
 
-        // println!("Response: {}", response);
+        println!("Response: {}", response);
         // print!(format!("Response:{response}", response));
 
     }
