@@ -14,9 +14,12 @@ fn main() {
         let user_input = handle_user_input();
 
         let response = match user_input {
-            Some(command) => {client.execute(command).unwrap();},
+            Some(command) => {
+                println!{"incoming command {:?}", command};
+                client.execute(command).unwrap();
+            },
             None => {
-                println!("No user input detected...");
+                println!("Undefined command.Terminating the client app...");
                 break;
             }
         };
@@ -32,9 +35,9 @@ fn show_disclaimer() {
     0: check consumption\n\
     1: check state \n\
     2: toggle outlet state \n\
-    _: locked feature";
+    _: quit";
 
-    print!("{}", prompt);
+    println!("{}", prompt);
 }
 
 fn handle_user_input() -> Option<Command> {
@@ -48,5 +51,6 @@ fn handle_user_input() -> Option<Command> {
         _ => return None,
     };
 
+    println!("{:?}", command);
     Some(command)
 }

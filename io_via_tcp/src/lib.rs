@@ -13,6 +13,7 @@ pub struct SmartOutletClient {
     stream: TcpStream,
 }
 
+#[derive(Debug)]
 pub enum Command {
     CheckState,
     CheckConsumption,
@@ -46,21 +47,10 @@ impl From<Command> for u8 {
 pub enum ServerResponse {
     State(u32),
     Wattage(f32),
-    Report(String),
+    Report(u32),
     TBD,
 }
 
-// impl fmt::Debug for ServerResponse{
-//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result{
-//         match &*self {
-//             ServerResponse::Report(val) => write!(f, "{:?}", val),
-//             ServerResponse::State(val) => write!(f, "{:?}",val),
-//             ServerResponse::Wattage(val) => write!(f, "{:?}", val),
-//             ServerResponse::TBD => write!(f, "")
-
-//         }
-//     }
-// }
 
 impl From<[u8; 5]> for ServerResponse {
     fn from(incoming_data: [u8; 5]) -> Self {
@@ -69,17 +59,18 @@ impl From<[u8; 5]> for ServerResponse {
                 let mut buf = [0u8; 4];
                 buf.copy_from_slice(&incoming_data[1..]);
                 Self::Wattage(f32::from_be_bytes(buf))
-            }
+            },
             [1, ..] => {
                 let mut buf = [0u8; 4];
                 buf.copy_from_slice(&incoming_data[1..]);
-                Self::Report(String::from_utf8(buf.to_vec()).unwrap())
-            }
+                Self::Report(u32::from_be_bytes(buf))
+
+            },
             [2, ..] => {
                 let mut buf = [0u8; 4];
                 buf.copy_from_slice(&incoming_data[1..]);
                 Self::State(u32::from_be_bytes(buf))
-            }
+            },
             _ => Self::TBD,
         }
     }
@@ -87,6 +78,7 @@ impl From<[u8; 5]> for ServerResponse {
 
 impl From<ServerResponse> for [u8; 5] {
     fn from(response: ServerResponse) -> Self {
+        
         let mut buffer = [0u8; 5];
 
         match response {
@@ -100,7 +92,7 @@ impl From<ServerResponse> for [u8; 5] {
             }
             ServerResponse::Report(val) => {
                 buffer[0] = 1;
-                buffer[1..].copy_from_slice(val.as_bytes())
+                buffer[1..].copy_from_slice(&val.to_be_bytes())
             }
             ServerResponse::TBD => buffer[0] = 255,
         };
@@ -109,13 +101,24 @@ impl From<ServerResponse> for [u8; 5] {
     }
 }
 
+
 impl fmt::Display for ServerResponse {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            
             ServerResponse::State(val) => write!(f, "The smart outlet is on: {}", val),
-            ServerResponse::Report(val) => write!(f, "Summary on the smart outlet state: {}", val),
+            ServerResponse::Report(val) => {
+                let state =  match val{
+                    0u32 => "off",
+                    1u32 => "on",
+                    _ => "broken",
+                };
+                write!(f, "The current outlet state is : {}", state)
+
+            },
             ServerResponse::Wattage(val) => write!(f, "Current consumption is: {} W", val),
-            ServerResponse::TBD => write!(f, "Unexpected command. Execution gonna be terminated."),
+            ServerResponse::TBD => write!(f, "Unexpected command. Execution gonna be terminated.")
+
         }
     }
 }
@@ -127,9 +130,15 @@ impl SmartOutletClient {
     }
 
     pub fn execute(&mut self, command: Command) -> Result<ServerResponse, Box<dyn Error>> {
+        
+        println!("execute.command: {:?}", command);
+
         self.stream.write_all(&[command.into()])?;
         let mut buffer = [0u8; 5];
         self.stream.read_exact(&mut buffer)?;
+        
+        println!("buffer: {:?}", buffer);
+
         Ok(buffer.into())
     }
 }

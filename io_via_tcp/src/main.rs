@@ -4,6 +4,8 @@ use std::{
     io::{Read, Write},
     net::TcpListener,
 };
+use rand::{self, Rng};
+
 
 struct SmartOutletEmulator {
     state: u32,
@@ -19,30 +21,51 @@ impl SmartOutletEmulator {
     }
 
     fn interact(&mut self, command: Command) -> ServerResponse {
+        
+        println!("toggle state {:?}", command);
+
         match command {
             Command::ToggleState => {
+                
+               println!("state now: {:?}", self.state);
+
                 let new_state = match self.state {
+                   
                     0u32 => 1u32,
                     1u32 => 0u32,
                     _ => 7u32,
                 };
-
+                self.state = new_state;
                 self.wattage = match new_state {
-                    1u32 => 224.1f32,
-                    0u32 => 1.2f32,
+                    
+                    1u32 => {
+                        let mut range = rand::thread_rng();
+                        range.gen_range(220.0 .. 229.9) as f32 },
+                    0u32 => {
+                        let mut range = rand::thread_rng();
+                        range.gen_range(0.0 .. 0.9) as f32 },
                     _ => -1.0f32,
+
                 };
-                ServerResponse::State(new_state)
+
+                println!("wattage {:?}", self.wattage);
+
+                println!("new state {:?}", new_state);
+                ServerResponse::State(new_state)               
             }
             Command::CheckConsumption => ServerResponse::Wattage(self.wattage),
             Command::CheckState => {
-                let state = match self.state {
-                    1u32 => "on",
-                    0u32 => "off",
-                    _ => "broken",
-                };
-                let report = format!(" The device is {}, consumes {} W", state, self.wattage);
-                ServerResponse::Report(report)
+                // let state = match self.state {
+                //     1u32 => "on",
+                //     0u32 => "off",
+                //     _ => "broken",
+                // };
+
+                // let report = format!(" The device is {}, consumes {} W", state, self.wattage);
+                // println!("{:?}", report);
+
+                ServerResponse::Report(self.state)
+
             }
             Command::Explode => ServerResponse::TBD,
         }
