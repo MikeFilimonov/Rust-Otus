@@ -15,8 +15,7 @@ fn main() {
 
         let response = match user_input {
             Some(command) => {
-                println!{"incoming command {:?}", command};
-                client.execute(command).unwrap();
+                client.execute(command).unwrap()
             },
             None => {
                 println!("Undefined command.Terminating the client app...");
@@ -24,17 +23,18 @@ fn main() {
             }
         };
 
-        println!("Response: {:?}", response);
+        println!("[so]: {response}");
        
 
     }
 }
 
 fn show_disclaimer() {
-    let prompt = "Available commands:\n\
-    0: check consumption\n\
-    1: check state \n\
-    2: toggle outlet state \n\
+    let prompt = "\n\
+    Accessed the smart outlet. Now you can:\n\
+    0: check its consumption\n\
+    1: check its state \n\
+    2: toggle the outlet state \n\
     _: quit";
 
     println!("{}", prompt);
@@ -51,6 +51,5 @@ fn handle_user_input() -> Option<Command> {
         _ => return None,
     };
 
-    println!("{:?}", command);
     Some(command)
 }

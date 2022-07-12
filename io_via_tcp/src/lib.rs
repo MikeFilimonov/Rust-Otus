@@ -33,7 +33,7 @@ impl From<u8> for Command {
 }
 
 impl From<Command> for u8 {
-    fn from(command: Command) -> u8 {
+    fn from(command: Command) -> Self {
         match command {
             Command::CheckConsumption => 0,
             Command::CheckState => 1,
@@ -106,7 +106,14 @@ impl fmt::Display for ServerResponse {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             
-            ServerResponse::State(val) => write!(f, "The smart outlet is on: {}", val),
+            ServerResponse::State(val) => {
+                let state =  match val{
+                    0u32 => " turned off",
+                    1u32 => " turned on",
+                    _ => " broken",
+                };
+                write!(f, "The smart outlet is  {}", state)
+            },
             ServerResponse::Report(val) => {
                 let state =  match val{
                     0u32 => "off",
@@ -130,14 +137,10 @@ impl SmartOutletClient {
     }
 
     pub fn execute(&mut self, command: Command) -> Result<ServerResponse, Box<dyn Error>> {
-        
-        println!("execute.command: {:?}", command);
 
         self.stream.write_all(&[command.into()])?;
         let mut buffer = [0u8; 5];
         self.stream.read_exact(&mut buffer)?;
-        
-        println!("buffer: {:?}", buffer);
 
         Ok(buffer.into())
     }

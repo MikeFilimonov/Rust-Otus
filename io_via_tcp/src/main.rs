@@ -21,13 +21,9 @@ impl SmartOutletEmulator {
     }
 
     fn interact(&mut self, command: Command) -> ServerResponse {
-        
-        println!("toggle state {:?}", command);
 
         match command {
             Command::ToggleState => {
-                
-               println!("state now: {:?}", self.state);
 
                 let new_state = match self.state {
                    
@@ -48,25 +44,10 @@ impl SmartOutletEmulator {
 
                 };
 
-                println!("wattage {:?}", self.wattage);
-
-                println!("new state {:?}", new_state);
-                ServerResponse::State(new_state)               
-            }
+             ServerResponse::State(new_state)               
+            },
             Command::CheckConsumption => ServerResponse::Wattage(self.wattage),
-            Command::CheckState => {
-                // let state = match self.state {
-                //     1u32 => "on",
-                //     0u32 => "off",
-                //     _ => "broken",
-                // };
-
-                // let report = format!(" The device is {}, consumes {} W", state, self.wattage);
-                // println!("{:?}", report);
-
-                ServerResponse::Report(self.state)
-
-            }
+            Command::CheckState => {ServerResponse::Report(self.state)},
             Command::Explode => ServerResponse::TBD,
         }
     }
