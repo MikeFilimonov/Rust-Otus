@@ -1,0 +1,6 @@
+[package]
+name = "io_via_udp_multithread_flavoured"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
