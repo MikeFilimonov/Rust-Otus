@@ -1,9 +1,12 @@
 use std::{
     error::Error,
     fmt,
-    io::{Read, Write},
-    net::{TcpStream, ToSocketAddrs},
 };
+
+use tokio::{
+        io::{AsyncReadExt, AsyncWriteExt},
+        net::{TcpStream, ToSocketAddrs},
+    };
 
 pub mod consts {
     pub const DEFAULT_OUTLET_ADDRESS: &str = "127.0.0.1:7878";
@@ -131,16 +134,16 @@ impl fmt::Display for ServerResponse {
 }
 
 impl SmartOutletClient {
-    pub fn new(server: impl ToSocketAddrs) -> Result<Self, Box<dyn Error>> {
-        let stream = TcpStream::connect(server)?;
+    pub async fn new(server: impl ToSocketAddrs) -> Result<Self, Box<dyn Error>> {
+        let stream = TcpStream::connect(server).await?;
         Ok(Self { stream })
     }
 
-    pub fn execute(&mut self, command: Command) -> Result<ServerResponse, Box<dyn Error>> {
+    pub async fn execute(&mut self, command: Command) -> Result<ServerResponse, Box<dyn Error>> {
 
-        self.stream.write_all(&[command.into()])?;
+        self.stream.write_all(&[command.into()]).await?;
         let mut buffer = [0u8; 5];
-        self.stream.read_exact(&mut buffer)?;
+        self.stream.read_exact(&mut buffer).await?;
 
         Ok(buffer.into())
     }

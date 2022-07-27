@@ -1,10 +1,16 @@
 use async_tcp_server::{consts, Command, ServerResponse};
+use rand::{self, Rng};
 use std::{
     env,
-    io::{Read, Write},
-    net::TcpListener,
+    sync::Arc,
+    // io::{Read, Write},
+    // net::TcpListener,
 };
-use rand::{self, Rng};
+pub use tokio::{
+    io::{AsyncReadExt, AsyncWriteExt},
+    net::TcpListener,
+    sync::Mutex,
+};
 
 
 struct SmartOutletEmulator {
@@ -53,7 +59,9 @@ impl SmartOutletEmulator {
     }
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
+
     let mut args = env::args();
     args.next().unwrap();
 
@@ -62,39 +70,41 @@ fn main() {
         .unwrap_or_else(|| consts::DEFAULT_OUTLET_ADDRESS.into());
 
     let port_monitor =
-        TcpListener::bind(server_address).expect("Failed to bind to the given address");
+        TcpListener::bind(server_address)
+        .await
+        .expect("Failed to bind to the given address");
 
-    let mut smart_outlet_emulator = SmartOutletEmulator::new();
+    let mut smart_outlet_emulator = Arc::new(Mutex::new(SmartOutletEmulator::new()));
 
-    while let Some(connection) = port_monitor.incoming().next() {
-        let mut stream = match connection {
-            Ok(result) => result,
-            Err(error) => {
-                println!("Can't establish connection due to error:{}", error);
-                continue;
+    while let Ok((mut stream, address)) = port_monitor.accept().await{
+
+        println!("New client has conneced, ip {}",  address.to_string());
+
+        let smart_outlet_emulator = smart_outlet_emulator.clone();
+        tokio::spawn(async move{
+            
+            let mut data  = [0u8];
+            while stream.read_exact(&mut data).await.is_ok(){
+
+                let response = smart_outlet_emulator
+                    .lock()
+                    .await
+                    .interact(data[0].into());
+                
+                let data: [u8; 5] = response.into();
+                if stream.write_all(&data).await.is_err(){
+                    break;
+                };
+
             }
-        };
 
-        let client = stream
-            .peer_addr()
-            .map(|address| address.to_string())
-            .unwrap_or_else(|_| "failed to get client ip".into());
+            println!(
+                "Client {} has been disconnected. Ready for a new connection",
+                address.to_string()
+            );
 
-        println!("New client has connected, ip {}", client);
+        });
 
-        let mut data = [0u8];
+    };
 
-        while stream.read_exact(&mut data).is_ok() {
-            let response = smart_outlet_emulator.interact(data[0].into());
-            let data: [u8; 5] = response.into();
-            if stream.write_all(&data).is_err() {
-                break;
-            };
-        }
-
-        println!(
-            "Client {} has been disconnected. Ready for a new connection",
-            client
-        );
     }
-}
