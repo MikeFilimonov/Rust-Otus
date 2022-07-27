@@ -7,4 +7,4 @@ edition = "2021"
 
 [dependencies]
 async_tcp_server = {path = "../async_tcp_server"}
-#tokio = {path = "../async_tcp_server/tokio"}
+tokio = {version = "1.20", features = ["net", "macros", "rt-multi-thread", "io-util", "sync"]}
