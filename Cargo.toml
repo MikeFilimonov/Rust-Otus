@@ -1,0 +1,7 @@
+[workspace]
+
+members = [
+"async_tcp_server",
+"async_udp_server",
+"async_tcp_client",
+"async_udp_client",]

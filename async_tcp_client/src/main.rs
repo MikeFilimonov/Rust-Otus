@@ -1,4 +1,4 @@
-use io_via_tcp::{
+use async_tcp_server::{
     consts::{DEFAULT_OUTLET_ADDRESS},
     Command, SmartOutletClient,
 };
