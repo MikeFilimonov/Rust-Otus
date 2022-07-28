@@ -1,16 +1,10 @@
-use async_tcp_server::{
-    consts::{DEFAULT_OUTLET_ADDRESS},
-    Command, SmartOutletClient,
-};
+use async_tcp_server::{consts::DEFAULT_OUTLET_ADDRESS, Command, SmartOutletClient};
 use std::io;
-use tokio::*;
 
 #[tokio::main]
 async fn main() {
     let default_ip = DEFAULT_OUTLET_ADDRESS;
-    let mut client = SmartOutletClient::new(default_ip)
-        .await
-        .unwrap();
+    let mut client = SmartOutletClient::new(default_ip).await.unwrap();
 
     loop {
         show_disclaimer();
@@ -18,12 +12,7 @@ async fn main() {
         let user_input = handle_user_input();
 
         let response = match user_input {
-            Some(command) => {
-                client
-                    .execute(command)
-                    .await
-                    .unwrap()
-            },
+            Some(command) => client.execute(command).await.unwrap(),
             None => {
                 println!("Undefined command.Terminating the client app...");
                 break;
@@ -31,8 +20,6 @@ async fn main() {
         };
 
         println!("[so]: {response}");
-       
-
     }
 }
 

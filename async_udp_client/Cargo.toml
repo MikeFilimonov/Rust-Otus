@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 async_udp_server = {path = "../async_udp_server"}
+tokio = {version = "1.20", features =["time"]}

@@ -1,12 +1,15 @@
 use std::{
     error::Error,
-    net::{ToSocketAddrs, UdpSocket},
     sync::{
         atomic::{AtomicBool, Ordering},
-        Arc, Mutex,
+        Arc,
     },
-    thread,
-    time::{Duration, Instant},
+    time::Duration,
+};
+use tokio::{
+    net::{ToSocketAddrs, UdpSocket},
+    sync::Mutex,
+    time::{self, Instant},
 };
 
 pub mod consts {
@@ -44,20 +47,19 @@ impl Default for DataEmulator {
 }
 
 impl SharedValue {
-    pub fn get_value(&self) -> f32 {
-        *self.0.lock().unwrap()
+    pub async fn get_value(&self) -> f32 {
+        *self.0.lock().await
     }
 
-    pub fn set_value(&self, value: f32) {
-        *self.0.lock().unwrap() = value
+    pub async fn set_value(&self, value: f32) {
+        *self.0.lock().await = value
     }
 }
 
 impl Thermometer {
-    pub fn new(address: impl ToSocketAddrs) -> Result<Self, Box<dyn Error>> {
-        let connection = UdpSocket::bind(address)?;
-        let timeout = Some(Duration::from_secs(1));
-        connection.set_read_timeout(timeout)?;
+    pub async fn new(address: impl ToSocketAddrs) -> Result<Self, Box<dyn Error>> {
+        let connection = UdpSocket::bind(address).await?;
+        let timeout = Duration::from_secs(1);
 
         let is_ready = Arc::new(AtomicBool::new(false));
         let temperature = Arc::new(SharedValue::default());
@@ -65,19 +67,21 @@ impl Thermometer {
         let shared_availability = is_ready.clone();
         let shared_result = temperature.clone();
 
-        thread::spawn(move || loop {
-            if shared_availability.load(Ordering::SeqCst) {
-                return;
+        tokio::spawn(async move {
+            loop {
+                if shared_availability.load(Ordering::SeqCst) {
+                    return;
+                }
+
+                let mut buffer = [0; 4];
+                if let Err(err) = time::timeout(timeout, connection.recv_from(&mut buffer)).await {
+                    println!("Can't retrieve data from thermometer because of {err}");
+                    continue;
+                }
+
+                let received_value = f32::from_be_bytes(buffer);
+                shared_result.set_value(received_value).await;
             }
-
-            let mut buffer = [0; 4];
-
-            if let Err(err) = connection.recv_from(&mut buffer) {
-                println!("Can't retrieve data from thermometer because of {err}");
-            }
-
-            let received_value = f32::from_be_bytes(buffer);
-            shared_result.set_value(received_value);
         });
 
         Ok(Self {
@@ -86,7 +90,7 @@ impl Thermometer {
         })
     }
 
-    pub fn get_data(&self) -> f32 {
-        self.temperature.get_value()
+    pub async fn get_data(&self) -> f32 {
+        self.temperature.get_value().await
     }
 }

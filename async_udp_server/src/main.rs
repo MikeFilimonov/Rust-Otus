@@ -1,12 +1,9 @@
 use async_udp_server::{consts, DataEmulator};
-use std::{
-    env,
-    net::{SocketAddr, UdpSocket},
-    thread,
-    time::Duration,
-};
+use std::{env, net::SocketAddr, time::Duration};
+use tokio::{net::UdpSocket, time};
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let args = env::args();
     let mut args = args.skip(1);
 
@@ -21,8 +18,9 @@ fn main() {
         .expect("Invalid udp address. Please try another one.");
 
     let server_address = consts::DEFAULT_UDP_CLIENT;
-    let connection =
-        UdpSocket::bind(server_address).expect("Can't bind to the address {server_address}");
+    let connection = UdpSocket::bind(server_address)
+        .await
+        .expect("Can't bind to the address {server_address}");
     let data_emulator = DataEmulator::default();
 
     println!("Sending current temperature from {server_address} to {receiver_address} via UDP");
@@ -30,10 +28,10 @@ fn main() {
     loop {
         let value = data_emulator.emulate();
         let bytes = value.to_be_bytes();
-        let sent_data = connection.send_to(&bytes, receiver);
+        let sent_data = connection.send_to(&bytes, receiver).await;
         if let Err(err) = sent_data {
             println!("Failed to share current temperature: {err}")
         }
-        thread::sleep(Duration::from_secs(1))
+        time::sleep(Duration::from_secs(1)).await
     }
 }

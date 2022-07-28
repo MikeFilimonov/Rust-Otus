@@ -1,12 +1,9 @@
-use std::{
-    error::Error,
-    fmt,
-};
+use std::{error::Error, fmt};
 
 use tokio::{
-        io::{AsyncReadExt, AsyncWriteExt},
-        net::{TcpStream, ToSocketAddrs},
-    };
+    io::{AsyncReadExt, AsyncWriteExt},
+    net::{TcpStream, ToSocketAddrs},
+};
 
 pub mod consts {
     pub const DEFAULT_OUTLET_ADDRESS: &str = "127.0.0.1:7878";
@@ -54,7 +51,6 @@ pub enum ServerResponse {
     TBD,
 }
 
-
 impl From<[u8; 5]> for ServerResponse {
     fn from(incoming_data: [u8; 5]) -> Self {
         match incoming_data {
@@ -62,18 +58,17 @@ impl From<[u8; 5]> for ServerResponse {
                 let mut buf = [0u8; 4];
                 buf.copy_from_slice(&incoming_data[1..]);
                 Self::Wattage(f32::from_be_bytes(buf))
-            },
+            }
             [1, ..] => {
                 let mut buf = [0u8; 4];
                 buf.copy_from_slice(&incoming_data[1..]);
                 Self::Report(u32::from_be_bytes(buf))
-
-            },
+            }
             [2, ..] => {
                 let mut buf = [0u8; 4];
                 buf.copy_from_slice(&incoming_data[1..]);
                 Self::State(u32::from_be_bytes(buf))
-            },
+            }
             _ => Self::TBD,
         }
     }
@@ -81,7 +76,6 @@ impl From<[u8; 5]> for ServerResponse {
 
 impl From<ServerResponse> for [u8; 5] {
     fn from(response: ServerResponse) -> Self {
-        
         let mut buffer = [0u8; 5];
 
         match response {
@@ -104,31 +98,27 @@ impl From<ServerResponse> for [u8; 5] {
     }
 }
 
-
 impl fmt::Display for ServerResponse {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            
             ServerResponse::State(val) => {
-                let state =  match val{
+                let state = match val {
                     0u32 => " turned off",
                     1u32 => " turned on",
                     _ => " broken",
                 };
                 write!(f, "The smart outlet is  {}", state)
-            },
+            }
             ServerResponse::Report(val) => {
-                let state =  match val{
+                let state = match val {
                     0u32 => "off",
                     1u32 => "on",
                     _ => "broken",
                 };
                 write!(f, "The current outlet state is : {}", state)
-
-            },
+            }
             ServerResponse::Wattage(val) => write!(f, "Current consumption is: {} W", val),
-            ServerResponse::TBD => write!(f, "Unexpected command. Execution gonna be terminated.")
-
+            ServerResponse::TBD => write!(f, "Unexpected command. Execution gonna be terminated."),
         }
     }
 }
@@ -140,7 +130,6 @@ impl SmartOutletClient {
     }
 
     pub async fn execute(&mut self, command: Command) -> Result<ServerResponse, Box<dyn Error>> {
-
         self.stream.write_all(&[command.into()]).await?;
         let mut buffer = [0u8; 5];
         self.stream.read_exact(&mut buffer).await?;

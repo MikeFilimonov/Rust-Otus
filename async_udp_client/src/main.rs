@@ -1,13 +1,15 @@
 use async_udp_server::{consts, Thermometer};
-use std::{thread, time::Duration};
+use std::time::Duration;
+use tokio::time;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let receiver_address = consts::DEFAULT_THERMO_ADDRESS;
-    let thermometer = Thermometer::new(receiver_address).unwrap();
+    let thermometer = Thermometer::new(receiver_address).await.unwrap();
 
     for _ in 0..consts::MAX_ITERAION_VALUE {
-        thread::sleep(Duration::from_secs(1));
-        let value = thermometer.get_data();
+        time::sleep(Duration::from_secs(1)).await;
+        let value = thermometer.get_data().await;
         println!("Now it's {value} degrees C");
     }
 }
