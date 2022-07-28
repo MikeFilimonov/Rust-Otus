@@ -1,4 +1,0 @@
-[workspace]
-members = ['shp',
-    'socket_client',
-    'socket_server']
