@@ -1,7 +1,6 @@
 //clone()  - useful for converting refs into values
-use planning_tools::{DeviceStorage, Room, ShowDescription, SmartDevice, SmartHome, SmartOutlet, SmartThermometer};
+use smart_home_planner::{DeviceStorage, Room, ShowDescription, SmartDevice, SmartHome};
 use std::collections::HashMap;
-
 
 fn main() {
     struct LocalStorage(HashMap<(String, SmartDevice), AvailableDeviceTypes>);
@@ -34,6 +33,39 @@ fn main() {
         }
     }
 
+    struct SmartOutlet {
+        description: String,
+        enabled: bool,
+        consumption: f32,
+    }
+
+    impl SmartOutlet {
+        fn _show_description(&self) {
+            todo!()
+        }
+
+        fn _turn_on(&mut self) {
+            todo!()
+        }
+
+        fn _turn_off(&mut self) {
+            todo!()
+        }
+
+        fn _get_current_power_consumption(&self) -> f32 {
+            todo!()
+        }
+    }
+
+    struct SmartThermometer {
+        current_temperature: f32,
+    }
+
+    impl SmartThermometer {
+        fn _get_current_value(&self) -> f32 {
+            todo!()
+        }
+    }
 
     let mut home = SmartHome::new("Brand new smart home");
 
@@ -81,7 +113,8 @@ fn main() {
 
     let room_name = &bathroom.get_room_name();
     //changed mind to adding a bath - that's datcha
-    home.remove_room(Some(room_name));
+    home.remove_room(Some(room_name))
+        .unwrap_or_else(|err| println!("{:?}", err));
 
     //synthetic relation between rooms and devices for full_device_report method
     device_types_available.0.insert(
