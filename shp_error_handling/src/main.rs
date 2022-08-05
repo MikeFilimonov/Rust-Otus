@@ -113,7 +113,8 @@ fn main() {
 
     let room_name = &bathroom.get_room_name();
     //changed mind to adding a bath - that's datcha
-    home.remove_room(Some(room_name));
+    home.remove_room(Some(room_name))
+        .unwrap_or_else(|err| println!("{:?}", err));
 
     //synthetic relation between rooms and devices for full_device_report method
     device_types_available.0.insert(

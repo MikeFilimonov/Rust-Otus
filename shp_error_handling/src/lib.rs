@@ -1,5 +1,26 @@
 use std::collections::{HashMap, HashSet};
-use std::io::ErrorKind as ErrorTypes;
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum RoomPlannerError {
+    #[error("The device already exists")]
+    DeviceAlreadyExists,
+
+    #[error("The device is not found")]
+    DeviceNotFound,
+}
+
+#[derive(Error, Debug)]
+pub enum SmartHomePlannerError {
+    #[error("Please, define the room name and try again...")]
+    InexistentRoom,
+}
+
+#[derive(Error, Debug)]
+pub enum AppError {
+    #[error("Sorry, the room can't return the device list properly")]
+    MainFeatureFailed,
+}
 
 pub struct SmartHome {
     name: String,
@@ -29,16 +50,15 @@ impl SmartHome {
         self.rooms.insert(new_room.name.clone(), new_room.clone());
     }
 
-    pub fn remove_room(&mut self, room_name: Option<&str>) {
+    pub fn remove_room(&mut self, room_name: Option<&str>) -> Result<(), SmartHomePlannerError> {
         match room_name {
-            None => {
-                println!("Please, define the room name and try again...");
-            }
+            None => return Err(SmartHomePlannerError::InexistentRoom),
             Some(room_name) => {
                 let room_to_be_removed = room_name;
-                self.rooms.remove(room_to_be_removed);
+                self.rooms.remove(room_to_be_removed)
             }
         };
+        Ok(())
     }
 
     pub fn get_full_report<T: DeviceStorage>(&self, query: &T) {
@@ -97,20 +117,20 @@ impl Room {
         device_list
     }
 
-    pub fn add_device(&mut self, new_device: &SmartDevice) -> Result<(), ErrorTypes> {
+    pub fn add_device(&mut self, new_device: &SmartDevice) -> Result<(), RoomPlannerError> {
         let successfully_added = self.smart_devices.insert(new_device.clone());
 
         match successfully_added {
             true => Ok(()),
-            _ => Err(ErrorTypes::AlreadyExists),
+            _ => Err(RoomPlannerError::DeviceAlreadyExists),
         }
     }
 
-    pub fn _remove_device(&mut self, device: &SmartDevice) -> Result<(), ErrorTypes> {
+    pub fn _remove_device(&mut self, device: &SmartDevice) -> Result<(), RoomPlannerError> {
         let removed = self.smart_devices.remove(device);
         match removed {
             true => Ok(()),
-            _ => Err(ErrorTypes::NotFound),
+            _ => Err(RoomPlannerError::DeviceNotFound),
         }
     }
 }
@@ -157,7 +177,9 @@ mod tests {
         depot.add_room(&warehouse);
         depot.add_room(&security_post);
 
-        depot.remove_room(Some(&warehouse_name));
+        depot
+            .remove_room(Some(&warehouse_name))
+            .unwrap_or_else(|err| println!("{:?}", err));
 
         let current_room_list = depot._get_room_list();
 
@@ -174,7 +196,7 @@ mod tests {
     }
 
     #[test]
-    fn room_can_return_device_list() -> Result<(), String> {
+    fn room_can_return_device_list() -> Result<(), AppError> {
         let smart_socket = SmartDevice::new("smart socket");
         let smart_bin = SmartDevice::new("smart trashbin");
         let smart_frige = SmartDevice::new("Samsung");
@@ -200,9 +222,7 @@ mod tests {
         if it_works {
             Ok(())
         } else {
-            Err(String::from(
-                "Sorry, the room can't return the device list properly",
-            ))
+            Err(AppError::MainFeatureFailed)
         }
     }
 }
