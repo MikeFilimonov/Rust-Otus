@@ -1,4 +1,4 @@
-use smart_home_planner::*;
+use backend_framework_in_action::*;
 
 #[test]
 fn smart_home_supports_adding_rooms() {

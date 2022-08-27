@@ -1,4 +1,4 @@
-use smart_home_planner::*;
+use backend_framework_in_action::*;
 use std::collections::HashMap;
 
 fn main() {

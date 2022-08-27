@@ -33,10 +33,13 @@ impl SmartHome {
     }
 
     pub fn get_full_report<T: DeviceStorage>(&self, query: &T) {
+        
+
         //iterate over all the rooms running through the devices located inside
         let room_list = &self.rooms;
 
-        println!("Opening the door of the {}", self.name);
+        //println!("Opening the door of the {}", self.name);
+        let test = format!("Opening the door of the {}", self.name);
 
         for (room_name, room) in room_list.iter() {
             println!("Entering {}", room_name);
@@ -56,6 +59,42 @@ impl SmartHome {
                 }
             }
         }
+
+    }
+
+
+    pub fn full_report<T:DeviceStorage>(&self, query: &T) -> String {
+
+        let mut result = String::from("");
+
+        //iterate over all the rooms running through the devices located inside
+        let room_list = &self.rooms;
+
+        //println!("Opening the door of the {}", self.name);
+        let test = format!("Opening the door of the {}", self.name);
+        result.push_str(&test[..]);
+
+        for (room_name, room) in room_list.iter() {
+            println!("Entering {}", room_name);
+
+            let device_list = &room.smart_devices;
+
+            if device_list.is_empty() {
+                println!("No smart devices in the room {}", room_name);
+            }
+
+            for device in device_list.iter() {
+                let temporary_result = query.seek(room_name, device.clone());
+                if let Some(available_device_type) = temporary_result {
+                    available_device_type.show_description();
+                } else {
+                    println!("Sorry! Unable to define the current device state due to sanctions.");
+                }
+            }
+        }
+
+        result  
+
     }
 }
 
