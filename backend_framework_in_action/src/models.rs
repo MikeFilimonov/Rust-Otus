@@ -29,3 +29,9 @@ pub struct Device {
     pub title: String,
     pub room_id: i32
 }
+
+#[derive(Deserialize)]
+pub struct RoomContainter{
+   pub smart_home_id: i32, 
+   pub name: String 
+}

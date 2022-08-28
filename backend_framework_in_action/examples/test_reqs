@@ -1,0 +1,3 @@
+curl localhost:8080/rooms/1/devices | jq .
+curl localhost:8080/rooms | jq .
+curl -X POST -H "Content-Type: application/json" -d '{"smart_home_id": 1, "name": "training_room"}' http://localhost:8080/rooms

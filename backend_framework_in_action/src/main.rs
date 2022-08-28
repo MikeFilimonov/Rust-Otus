@@ -216,12 +216,12 @@ async fn full_report_via_web()->impl Responder{
 }
 
     HttpServer::new(move ||{
-      App::new()
-      .app_data(Data::new(pool.clone()))
-      .route("/howdy", web::get().to( handlers::howdy))
-    //   .route("/rooms{_:/?}", web::get().to(get_room_list))
-    .route("/rooms", web::get().to(get_room_list))
-    //   .route("/full_report", web::get().to(full_report_via_web))  
+        App::new()
+        .app_data(Data::new(pool.clone()))
+        .route("/howdy", web::get().to( handlers::howdy))
+        .route("/rooms{_:/?}", web::get().to(get_room_list))
+        .route("/rooms{_:/?}", web::post().to(add_room))
+        .route("/rooms/{room_id}/devices{_:/?}", web::get().to(get_device_list))
     })
     .bind(format!("{}:{}", config.server.host, config.server.port))?
     .run()
