@@ -2,16 +2,18 @@ mod config;
 mod handlers;
 mod errors;
 mod models;
+mod actions;
 
 use crate::config::Config;
 use backend_framework_in_action::{DeviceStorage, Room, ShowDescription, SmartDevice, SmartHome};
 use std::{collections::HashMap, io};
-use actix_web::{get, post, web, App, HttpServer, HttpResponse, Responder};
+use actix_web::{get, post, web, web::Data, App, HttpServer, HttpResponse, Responder};
 use dotenv::dotenv;
 use tokio_postgres::NoTls;
 use crate::handlers::*;
 
-#[actix_web::main]
+// #[actix_web::main]
+#[actix_rt::main]
 async fn main()->std::io::Result<()> {
 
     //loading envs
@@ -215,8 +217,10 @@ async fn full_report_via_web()->impl Responder{
 
     HttpServer::new(move ||{
       App::new()
-      .app_data(pool.clone())
+      .app_data(Data::new(pool.clone()))
       .route("/howdy", web::get().to( handlers::howdy))
+    //   .route("/rooms{_:/?}", web::get().to(get_room_list))
+    .route("/rooms", web::get().to(get_room_list))
     //   .route("/full_report", web::get().to(full_report_via_web))  
     })
     .bind(format!("{}:{}", config.server.host, config.server.port))?
