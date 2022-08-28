@@ -3,18 +3,27 @@ mod handlers;
 mod errors;
 mod models;
 
+use crate::config::Config;
 use backend_framework_in_action::{DeviceStorage, Room, ShowDescription, SmartDevice, SmartHome};
 use std::{collections::HashMap, io};
 use actix_web::{get, post, web, App, HttpServer, HttpResponse, Responder};
 use dotenv::dotenv;
+use tokio_postgres::NoTls;
+use crate::handlers::*;
 
 #[actix_web::main]
 async fn main()->std::io::Result<()> {
 
     //loading envs
     dotenv().ok();
-    let config = crate::config::Config::from_env().unwrap();
+    let config = match Config::from_env(){
+        Ok(cfg) => cfg,
+        Err(e) => panic!("Failed to read the config because of {e}")
 
+    };
+
+   
+    let pool = config.pg.create_pool(NoTls).unwrap();
 
     println!("Starting server at http://{}:{}", config.server.host, config.server.port);
 
@@ -204,8 +213,9 @@ async fn full_report_via_web()->impl Responder{
     HttpResponse::Ok().body(result)
 }
 
-    HttpServer::new(move||{
+    HttpServer::new(move ||{
       App::new()
+      .app_data(pool.clone())
       .route("/howdy", web::get().to( handlers::howdy))
     //   .route("/full_report", web::get().to(full_report_via_web))  
     })

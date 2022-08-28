@@ -30,4 +30,10 @@ impl AppError{
             _ => "An unexpected error has occured".to_string(),
             }
         }
-     }
+}
+
+impl fmt::Display for AppError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error>{
+        write!(f, "{:?}", self)
+    }
+}
