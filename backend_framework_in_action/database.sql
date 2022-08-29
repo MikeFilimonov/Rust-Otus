@@ -26,7 +26,7 @@ CREATE TABLE devices(
         REFERENCES smart_home(id),
     FOREIGN KEY (room_id)
         REFERENCES rooms(id),
-    title VARCHAR(150) NOT NULL
+    title VARCHAR(150) UNIQUE NOT NULL
 );
 
 INSERT INTO 

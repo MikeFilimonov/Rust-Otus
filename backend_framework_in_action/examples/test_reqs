@@ -1,3 +1,8 @@
+curl localhost:8080/howdy | jq .
+curl localhost:8080/full_report | jq .
 curl localhost:8080/rooms/1/devices | jq .
 curl localhost:8080/rooms | jq .
-curl -X POST -H "Content-Type: application/json" -d '{"smart_home_id": 1, "name": "training_room"}' http://localhost:8080/rooms
+curl -X POST -H "Content-Type: application/json" -d '{"smart_home_id": 1, "name": "rustroom"}' http://localhost:8080/rooms | jq .
+curl -X DELETE -H "Content-Type: application/json" http://localhost:8080/rooms/5 | jq .
+curl -X POST -H "Content-Type: application/json" -d '{"name": "jarvis", "smart_home_id": 1}' http://localhost:8080/rooms/1/devices | jq .
+curl -X DELETE -H "Content-Type: application/json" http://localhost:8080/rooms/1/devices/7 | jq .
