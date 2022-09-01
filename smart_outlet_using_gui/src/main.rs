@@ -1,8 +1,9 @@
 use iced::{
-    alignment, button, executor, time, Alignment, Application, Button, Column, Command, Container,
-    Element, Length, Row, Settings, Subscription, Text,
+    alignment, button, executor, Alignment, Application, Button, Column, Command, Container,
+    Element, Length, Row, Settings, Text,
 };
-use rand::thread_rng;
+use rand::{thread_rng, Rng};
+use std::fmt;
 
 mod styles;
 
@@ -23,17 +24,27 @@ enum State {
     Off,
 }
 
+impl fmt::Display for State {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            State::Off => write!(f, "Off"),
+            State::On => write!(f, "On"),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 enum Message {
     Toggle,
 }
 
 impl Application for SmartOutlet {
-    type Executor = executor::Default();
+    type Executor = executor::Default;
     type Message = Message;
     type Flags = ();
 
     fn new(_flags: ()) -> (Self, Command<Message>) {
+        let mut rng = rand::thread_rng();
         (
             SmartOutlet {
                 state: State::Off,
@@ -41,7 +52,7 @@ impl Application for SmartOutlet {
                 summary: format!(
                     "The socket is: {}, {}V",
                     State::Off,
-                    thread_rng().gen_range(0..2)
+                    rand::Rng::gen_range(&mut rng, 0..2)
                 ),
                 toggle: button::State::new(),
             },
@@ -72,15 +83,16 @@ impl Application for SmartOutlet {
     }
 
     fn view(&mut self) -> Element<Message> {
-        let display_view = Text::new(self.summary).size(50);
+        let display_view = Text::new(self.summary.clone()).size(50);
 
         let button = |state, label, style| {
             Button::new(
                 state,
                 Text::new(label).horizontal_alignment(alignment::Horizontal::Center),
             )
-            .padding(20)
-            .width(Length::Units(58))
+            .padding(5)
+            .width(Length::Units(120))
+            .height(Length::Units(30))
             .style(style)
         };
 
@@ -89,14 +101,16 @@ impl Application for SmartOutlet {
                 State::Off => ("Turn on", styles::Button::Primary),
                 State::On => ("Turn off", styles::Button::Destructive),
             };
+
+            button(&mut self.toggle, label, colour).on_press(Message::Toggle)
         };
 
-        let controls = Row::new().spacing(20).push(toggle_button);
+        let controls = Row::new().spacing(100).push(toggle_button);
 
         let content = Column::new()
             .align_items(Alignment::Center)
             .spacing(20)
-            .push(button)
+            .push(display_view)
             .push(controls);
 
         Container::new(content)
